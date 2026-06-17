@@ -25,25 +25,47 @@
   <!-- side nav -->
   <ul id="side-menu" class="sidenav side-menu">
     <li><a class="subheader">UberEatsCUDEC</a></li>
-    <li><a href="/" class="waves-effect">Home</a></li>
-    <li><a href="/pages/about.html" class="waves-effect">About</a></li>
+    <li><a href="/" class="waves-effect">Inicio</a></li>
+    <li><a href="/pages/about.html" class="waves-effect">Acerca</a></li>
+    <li><a href="/pages/pedidos.html" class="waves-effect">Pedidos</a></li>
     <li><div class="divider"></div></li>
     <li><a href="/pages/contact.html" class="waves-effect">
-      <i class="material-icons">mail_outline</i>Contact</a>
+      <i class="material-icons">mail_outline</i>Contacto</a>
     </li>
   </ul>
 
   <!-- content -->
-  <div class="container grey-text">
+  <div class="recipes container grey-text text-darken-1">
 
-    <label for="txtPlatillo" class="texto1">Platillo:</label>
-    <select id="txtPlatillo" name="platillo" placeholder="Ej. Hamburguesas"></select>
+    <span class="mensaje_principal">Nuevo pedido</span><br>
+
+    <div class="grupo-input">
+        <br> <label for="txtPlatillo" class="recipe-title">Platillo:</label>
+        <select id="platillo" name="Platillo" placeholder="">
+          
+        </select>
+    </div>
+
+    <div class="grupo-input">
+        <label for="txtNombre" class="recipe-title">Nombre de usuario:</label>
+        <select id="txtNombre" name="Nombre" placeholder=""></select>
+    </div>
+
+    <div class="grupo-input">
+      <label for="txtDireccion" class="recipe-title">Direccion:</label>
+      <select id="txtDireccion" name="Direccion" placeholder="Calle # 123 Colonia: colonia"></select>
+  </div>
 
 
 
+    <br>
+    <button onclick=''>Registrar</button> <span> <button onclick=''>Cancelar</button>
+    <br> 
+    
 
   </div>
 
-  <script src="/js/ui.js"></script>
+  <script src="/js/index.js"></script>
+  <script src="/js/db.js"></script>
 </body>
 </html>
