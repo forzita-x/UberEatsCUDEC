@@ -2,7 +2,10 @@ db.collection("platillos").onSnapshot((coleccion) => {
     coleccion.docChanges().forEach((registro) => {
         if (registro.type === "added"){
             mostrarPlatillo(registro.doc.data(), registro.doc.id);
+            const selectPlatillos = document.getElementById('listaPlatiollos');
+            if (selectPlatillos){
             agregarALista(registro.doc.data(), registro.doc.id);
+            }
         }
         if (registro.type === "modified"){
             actualizarPlatillo(registro.doc.data(), registro.doc.id);
@@ -33,6 +36,7 @@ formularioAgregar.addEventListener("submit", (e) => {
     formularioAgregar.precio.value = "";
     alert("Platillo agregado");
 });
+
 
 const platilloBorrar = document.querySelector(".recipes");
 platilloBorrar.addEventListener("click",(e) => {

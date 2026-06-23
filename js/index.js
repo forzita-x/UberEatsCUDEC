@@ -42,9 +42,3 @@ const platillo = document.querySelector(`.recipe[data-id=${id}]`);
 platillo.remove();
 };
 
-function agregarALista(platillo, id) {
-  contenidoLista = `
-  <option value="${id}">${platillo.nombre}</option>
-  `;
-
-}

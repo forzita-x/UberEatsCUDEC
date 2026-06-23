@@ -40,21 +40,20 @@
     <span class="mensaje_principal">Nuevo pedido</span><br>
 
     <div class="grupo-input">
-        <br> <label for="txtPlatillo" class="recipe-title">Platillo:</label>
-        <select id="platillo" name="Platillo" placeholder="">
-          
-        </select>
+      <span class="recipe-title">Selecciona un platillo </span>
+      <br> <select id="listaPlatillos" ></select>
+        
     </div>
 
     <div class="grupo-input">
         <label for="txtNombre" class="recipe-title">Nombre de usuario:</label>
-        <select id="txtNombre" name="Nombre" placeholder=""></select>
-    </div>
+        <input placeholder="Ejemplo= Marcos Rios" id="txtNombreUsuario" type="text" class="grupo-input">
+    
 
-    <div class="grupo-input">
+    
       <label for="txtDireccion" class="recipe-title">Direccion:</label>
-      <select id="txtDireccion" name="Direccion" placeholder="Calle # 123 Colonia: colonia"></select>
-  </div>
+      <input placeholder="Calle # 123 Colonia: colonia" id="txtDireccionPedido" type="text" class="grupo-input">
+ 
 
 
 
@@ -65,7 +64,8 @@
 
   </div>
 
-  <script src="/js/index.js"></script>
-  <script src="/js/db.js"></script>
+  <script src="/js/firebase.js"></script>
+  <script src="/js/pedidos.js"></script>
+
 </body>
 </html>
