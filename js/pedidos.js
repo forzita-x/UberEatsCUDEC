@@ -1,15 +1,8 @@
-<<<<<<< HEAD
 let contenidoLista = '';
 
 db.collection("platillos").onSnapshot((datos) => {
     datos.docChanges().forEach((registro) => {
         if (registro.type === "added") {
-=======
-let contenidoLista= '';
-db.collection("platillos").onSnapshot((datos)=>{
-    datos.docChanges().forEach((registro)=>{
-        if (registro.type==="added"){
->>>>>>> c5c0bb400be9f674646e62b7f8a489f7ce1b2168
             agregarALista(registro.doc.data(), registro.doc.id);
         }
     });
@@ -17,17 +10,48 @@ db.collection("platillos").onSnapshot((datos)=>{
     M.FormSelect.init(elems);
 });
 
-<<<<<<< HEAD
 function agregarALista(platillo, id) {
     contenidoLista += `<option value='${id}'>
     ${platillo.nombre}
     </option>`;
     document.getElementById("listaPlatillos").innerHTML = contenidoLista;
-=======
-function agregarALista (platillo, id) {
-    contenido += `<option value= '${id}'>
-    ${platillo.nombre}
-    </option>`;
-    document.getElementById("listaPlatillos").innerHTML = contenidoLista; 
->>>>>>> c5c0bb400be9f674646e62b7f8a489f7ce1b2168
+}
+
+// --- Guardar pedido en la colección "pedidos" ---
+const selectPlatillo = document.getElementById("listaPlatillos");
+const inputNombre = document.getElementById("nombre");
+const inputDireccion = document.getElementById("direccion");
+const btnGuardar = document.getElementById("btnGuardar");
+const btnCancelar = document.getElementById("btnCancelar");
+
+btnGuardar.addEventListener("click", () => {
+    const platillo = selectPlatillo.options[selectPlatillo.selectedIndex].text.trim();
+    const nombre = inputNombre.value.trim();
+    const direccion = inputDireccion.value.trim();
+
+    if (!selectPlatillo.value || !nombre || !direccion) {
+        alert("Por favor completa todos los campos.");
+        return;
+    }
+
+    const pedidoNuevo = { platillo, nombre, direccion };
+
+    db.collection("pedidos").add(pedidoNuevo)
+        .then(() => {
+            alert("Pedido guardado correctamente");
+            limpiarFormulario();
+        })
+        .catch((error) => {
+            console.error("Error al guardar el pedido: ", error);
+            alert("Error al guardar el pedido");
+        });
+});
+
+btnCancelar.addEventListener("click", limpiarFormulario);
+
+function limpiarFormulario() {
+    selectPlatillo.selectedIndex = 0;
+    inputNombre.value = "";
+    inputDireccion.value = "";
+    M.updateTextFields();
 }
