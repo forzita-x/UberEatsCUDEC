@@ -1,8 +1,6 @@
 db.collection("platillos").onSnapshot((datos) => {
-    contenidoLista = ""; 
-    
     datos.docChanges().forEach((registro) => {
-        if (registro.type === "added") {
+        if (registro.type === "added"){
             mostrarPlatillo(registro.doc.data(), registro.doc.id);
         }
         if (registro.type === "modified") {
