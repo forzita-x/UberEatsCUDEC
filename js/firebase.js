@@ -10,4 +10,4 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-//COMENTARIO DE PRUEBA
+//COMENTARIO DE PRUEBA guardado
