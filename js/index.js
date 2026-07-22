@@ -48,4 +48,3 @@ function agregarALista(platillo, id) {
   `;
 
 }
-//COMENTARIO DE PRUEBA guardado

@@ -55,4 +55,3 @@ platilloBorrar.addEventListener("click", (e) => {
         }
     }
 });
-//COMENTARIO DE PRUEBA guardado

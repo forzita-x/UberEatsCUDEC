@@ -55,4 +55,3 @@ function limpiarFormulario() {
     inputDireccion.value = "";
     M.updateTextFields();
 }
-//COMENTARIO DE PRUEBA guardado
