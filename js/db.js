@@ -1,14 +1,16 @@
 db.collection("platillos").onSnapshot((datos) => {
+    contenidoLista = ""; // Asumo que esta variable la tienes declarada más arriba
+    
     datos.docChanges().forEach((registro) => {
-        if (registro.type === "added"){
+        if (registro.type === "added") {
             mostrarPlatillo(registro.doc.data(), registro.doc.id);
         }
         if (registro.type === "modified") {
             actualizarPlatillo(registro.doc.data(), registro.doc.id);
         }
-        
+        // --- AQUÍ IMPLEMENTAMOS LA ESCUCHA DEL BORRADO ---
         if (registro.type === "removed") {
-        
+            // Esta función quitará el platillo de tu HTML visualmente
             borrarPlatillo(registro.doc.id); 
         }
     });
@@ -21,7 +23,8 @@ formularioAgregar.addEventListener("submit", (e) => {
     const platilloNuevo = {
         nombre: formularioAgregar.title.value,
         ingredientes: formularioAgregar.ingredientes.value,
-        precio: formularioAgregar.price.value
+        precio: formularioAgregar.price.value,
+        foto: formularioAgregar.fotoFinal.value
     }
     db.collection("platillos").add(platilloNuevo)
     .catch((error) => {
@@ -33,6 +36,7 @@ formularioAgregar.addEventListener("submit", (e) => {
     formularioAgregar.title.value = "";
     formularioAgregar.ingredientes.value = "";
     formularioAgregar.price.value = "";
+    formularioAgregar.fotoFinal.value = "";
     alert("Platillo agregado");
 });
 

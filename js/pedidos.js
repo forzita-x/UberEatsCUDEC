@@ -16,7 +16,9 @@ function agregarALista(platillo, id) {
     </option>`;
     document.getElementById("listaPlatillos").innerHTML = contenidoLista;
 }
+////////
 
+/////////
 // --- Guardar pedido en la colección "pedidos" ---
 const selectPlatillo = document.getElementById("listaPlatillos");
 const inputNombre = document.getElementById("nombre");
@@ -47,6 +49,7 @@ btnGuardar.addEventListener("click", () => {
         });
 });
 
+
 btnCancelar.addEventListener("click", limpiarFormulario);
 
 function limpiarFormulario() {
@@ -54,4 +57,49 @@ function limpiarFormulario() {
     inputNombre.value = "";
     inputDireccion.value = "";
     M.updateTextFields();
+}
+
+let mapa;
+
+document.getElementById("btnUbicacion").addEventListener("click", function() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(exito, error);
+    }
+});
+
+function exito(posicion) {
+    let latitud = posicion.coords.latitude;
+    let longitud = posicion.coords.longitude;
+    fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitud}&lon=${longitud}&format=json`, {
+        headers: {
+            'User-Agent': 'UberEatsCUDECMauricio (mgm140902@gmail.com)'
+        }
+})
+    .then(response => response.json())
+    .then(data => {
+        const inputDireccion = document.getElementById("direccion");
+        if (inputDireccion) {
+            inputDireccion.value = data.display_name;
+            M.updateTextFields();
+        }
+
+        // Mostrar la ubicación en el mapa
+        if (!mapa) {
+            mapa = L.map('mapa').setView([latitud, longitud], 15);
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }).addTo(mapa);
+        } else {
+            mapa.setView([latitud, longitud], 15);
+        }
+        L.marker([latitud, longitud]).addTo(mapa);
+    })
+    .catch(error => console.error(error));
+
+}
+
+function error(error) {
+    alert("Error al obtener la ubicación: " + error.message);
+    console.log(error);
 }
