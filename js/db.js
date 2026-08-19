@@ -1,7 +1,9 @@
 // Sincronizacion de la coleccion "platillos" con Firestore.
 // Requiere firebase.js (define `db`) e index.js (define mostrarPlatillo, etc.).
 // Solo se carga en index.html.
-
+window.onerror = function(msg, src, line, col, err){
+  alert('ERROR:' + msg '\nlinea' + line);
+};
 if (!db) {
   console.error('Firestore no esta disponible: no se cargaran los platillos.');
 } else {
