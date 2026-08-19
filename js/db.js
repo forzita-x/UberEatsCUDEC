@@ -80,8 +80,8 @@ function guardarPlatillo(fotoBase64) {
     })
     .finally(function () {
       if (botonAgregar) botonAgregar.disabled = false;
-    });
-}
+    
+
 
 // Llamar directo sin pasar por Storage
 guardarPlatillo(fotoBase64);
