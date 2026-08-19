@@ -31,34 +31,14 @@ if (!db) {
   /* Alta de platillos                                                  */
   /* ---------------------------------------------------------------- */
 
-  const formularioAgregar = document.querySelector('.add-recipe');
-  const campoNombre = document.getElementById('title');
-  const campoIngredientes = document.getElementById('ingredientes');
-  const campoPrecio = document.getElementById('price');
-  const campoFotoOculto = document.getElementById('fotoFinal');
-  const botonAgregar = formularioAgregar ? formularioAgregar.querySelector('button') : null;
+const formularioAgregar = document.querySelector('.add-recipe');
+const campoNombre = document.getElementById('title');
+const campoIngredientes = document.getElementById('ingredientes');
+const campoPrecio = document.getElementById('price');
+const campoFotoOculto = document.getElementById('fotoFinal');
+const botonAgregar = formularioAgregar ? formularioAgregar.querySelector('button') : null;
 
-  if (formularioAgregar && campoNombre && campoIngredientes && campoPrecio && campoFotoOculto) {
-    formularioAgregar.addEventListener('submit', function (e) {
-      e.preventDefault();
-
-      const nombre = campoNombre.value.trim();
-      const ingredientes = campoIngredientes.value.trim();
-      const precio = Number.parseFloat(campoPrecio.value);
-      const fotoBase64 = campoFotoOculto.value;
-
-      if (!nombre || !ingredientes) {
-        alert('Escribe el nombre y los ingredientes del platillo.');
-        return;
-      }
-      if (!Number.isFinite(precio) || precio < 0) {
-        alert('El precio debe ser un numero mayor o igual a cero.');
-        return;
-      }
-
-      if (botonAgregar) botonAgregar.disabled = true;
-
-function guardarPlatillo(fotoBase64) {
+function guardarPlatillo(nombre, ingredientes, precio, fotoBase64) {
   const platilloNuevo = {
     nombre: nombre,
     ingredientes: ingredientes,
@@ -80,14 +60,32 @@ function guardarPlatillo(fotoBase64) {
     })
     .finally(function () {
       if (botonAgregar) botonAgregar.disabled = false;
-    
-
-
-// Llamar directo sin pasar por Storage
-guardarPlatillo(fotoBase64);
     });
-  }
+}
 
+if (formularioAgregar && campoNombre && campoIngredientes && campoPrecio && campoFotoOculto) {
+  formularioAgregar.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const nombre = campoNombre.value.trim();
+    const ingredientes = campoIngredientes.value.trim();
+    const precio = Number.parseFloat(campoPrecio.value);
+    const fotoBase64 = campoFotoOculto.value;
+
+    if (!nombre || !ingredientes) {
+      alert('Escribe el nombre y los ingredientes del platillo.');
+      return;
+    }
+    if (!Number.isFinite(precio) || precio < 0) {
+      alert('El precio debe ser un numero mayor o igual a cero.');
+      return;
+    }
+
+    if (botonAgregar) botonAgregar.disabled = true;
+
+    guardarPlatillo(nombre, ingredientes, precio, fotoBase64);
+  });
+}
   /* ---------------------------------------------------------------- */
   /* Baja de platillos                                                  */
   /* ---------------------------------------------------------------- */
