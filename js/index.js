@@ -100,6 +100,10 @@ function mostrarAviso(texto) {
 /* Camara                                                               */
 /* ------------------------------------------------------------------ */
 
+/* ------------------------------------------------------------------ */
+/* Camara                                                               */
+/* ------------------------------------------------------------------ */
+
 const video = document.getElementById('video');
 const canvas = document.getElementById('canvas');
 const salida = document.getElementById('salida');
@@ -114,6 +118,12 @@ if (video && canvas && salida && foto && btnFoto && btnCapturar && campoFoto) {
   let streaming = false;
   let streamActual = null;
 
+  // Crear selector de cámara dinámicamente
+  const selectCamara = document.createElement('select');
+  selectCamara.className = 'browser-default';
+  selectCamara.style.cssText = 'margin: 8px 0; width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 5px; display: none;';
+  btnCapturar.parentNode.insertBefore(selectCamara, btnCapturar.nextSibling);
+
   video.setAttribute('playsinline', '');
   video.muted = true;
 
@@ -127,6 +137,51 @@ if (video && canvas && salida && foto && btnFoto && btnCapturar && campoFoto) {
     alto = 0;
     btnCapturar.disabled = true;
     btnFoto.textContent = 'Imagen';
+    selectCamara.style.display = 'none';
+  }
+
+  function iniciarCamara(deviceId) {
+    if (streamActual) {
+      streamActual.getTracks().forEach(function (track) { track.stop(); });
+      streamActual = null;
+      streaming = false;
+    }
+
+    const restricciones = {
+      audio: false,
+      video: deviceId
+        ? { deviceId: { exact: deviceId } }
+        : { facingMode: { ideal: 'environment' } }
+    };
+
+    return navigator.mediaDevices.getUserMedia(restricciones)
+      .then(function (stream) {
+        streamActual = stream;
+        video.srcObject = stream;
+        btnFoto.textContent = 'Apagar camara';
+        return video.play();
+      });
+  }
+
+  function cargarCamaras() {
+    return navigator.mediaDevices.enumerateDevices()
+      .then(function (dispositivos) {
+        const camaras = dispositivos.filter(function (d) {
+          return d.kind === 'videoinput';
+        });
+
+        selectCamara.innerHTML = '';
+
+        camaras.forEach(function (camara, indice) {
+          const opcion = document.createElement('option');
+          opcion.value = camara.deviceId;
+          opcion.textContent = camara.label || ('Camara ' + (indice + 1));
+          selectCamara.appendChild(opcion);
+        });
+
+        // Solo mostrar el selector si hay mas de una camara
+        selectCamara.style.display = camaras.length > 1 ? 'block' : 'none';
+      });
   }
 
   btnFoto.addEventListener('click', function () {
@@ -140,17 +195,31 @@ if (video && canvas && salida && foto && btnFoto && btnCapturar && campoFoto) {
       return;
     }
 
-    navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-      .then(function (stream) {
-        streamActual = stream;
-        video.srcObject = stream;
-        btnFoto.textContent = 'Apagar camara';
-        return video.play();
+    // Iniciar con la camara trasera por defecto, luego cargar la lista
+    iniciarCamara(null)
+      .then(function () {
+        return cargarCamaras();
+      })
+      .then(function () {
+        // Sincronizar el select con la camara que realmente se esta usando
+        const trackActual = streamActual && streamActual.getVideoTracks()[0];
+        if (trackActual) {
+          const deviceIdActual = trackActual.getSettings().deviceId;
+          if (deviceIdActual) selectCamara.value = deviceIdActual;
+        }
       })
       .catch(function (error) {
         console.error('No se pudo abrir la camara:', error);
         alert('No se pudo abrir la camara: ' + error.message);
         detenerCamara();
+      });
+  });
+
+  selectCamara.addEventListener('change', function () {
+    iniciarCamara(selectCamara.value)
+      .catch(function (error) {
+        console.error('No se pudo cambiar la camara:', error);
+        alert('No se pudo cambiar la camara: ' + error.message);
       });
   });
 
