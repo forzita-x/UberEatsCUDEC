@@ -1,9 +1,11 @@
 // Sincronizacion de la coleccion "platillos" con Firestore.
 // Requiere firebase.js (define `db`) e index.js (define mostrarPlatillo, etc.).
 // Solo se carga en index.html.
+
 if (!db) {
   console.error('Firestore no esta disponible: no se cargaran los platillos.');
 } else {
+
   const coleccionPlatillos = db.collection('platillos');
 
   coleccionPlatillos.onSnapshot(
@@ -31,61 +33,62 @@ if (!db) {
   /* Alta de platillos                                                  */
   /* ---------------------------------------------------------------- */
 
-const formularioAgregar = document.querySelector('.add-recipe');
-const campoNombre = document.getElementById('title');
-const campoIngredientes = document.getElementById('ingredientes');
-const campoPrecio = document.getElementById('price');
-const campoFotoOculto = document.getElementById('fotoFinal');
-const botonAgregar = formularioAgregar ? formularioAgregar.querySelector('button') : null;
+  const formularioAgregar = document.querySelector('.add-recipe');
+  const campoNombre      = document.getElementById('title');
+  const campoIngredientes = document.getElementById('ingredientes');
+  const campoPrecio      = document.getElementById('price');
+  const campoFotoOculto  = document.getElementById('fotoFinal');
+  const botonAgregar     = formularioAgregar ? formularioAgregar.querySelector('button') : null;
 
-function guardarPlatillo(nombre, ingredientes, precio, fotoBase64) {
-  const platilloNuevo = {
-    nombre: nombre,
-    ingredientes: ingredientes,
-    precio: precio,
-    foto: fotoBase64,
-    creado: firebase.firestore.FieldValue.serverTimestamp()
-  };
+  function guardarPlatillo(nombre, ingredientes, precio, fotoBase64) {
+    const platilloNuevo = {
+      nombre: nombre,
+      ingredientes: ingredientes,
+      precio: precio,
+      foto: fotoBase64,
+      creado: firebase.firestore.FieldValue.serverTimestamp()
+    };
 
-  coleccionPlatillos.add(platilloNuevo)
-    .then(function () {
-      formularioAgregar.reset();
-      window.limpiarFoto();
-      M.updateTextFields();
-      alert('Platillo agregado');
-    })
-    .catch(function (error) {
-      console.error('Error al agregar el platillo:', error);
-      alert('Error al agregar el platillo: ' + error.message);
-    })
-    .finally(function () {
-      if (botonAgregar) botonAgregar.disabled = false;
+    coleccionPlatillos.add(platilloNuevo)
+      .then(function () {
+        formularioAgregar.reset();
+        window.limpiarFoto();
+        M.updateTextFields();
+        alert('Platillo agregado');
+      })
+      .catch(function (error) {
+        console.error('Error al agregar el platillo:', error);
+        alert('Error al agregar el platillo: ' + error.message);
+      })
+      .finally(function () {
+        if (botonAgregar) botonAgregar.disabled = false;
+      });
+  }
+
+  if (formularioAgregar && campoNombre && campoIngredientes && campoPrecio && campoFotoOculto) {
+    formularioAgregar.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const nombre      = campoNombre.value.trim();
+      const ingredientes = campoIngredientes.value.trim();
+      const precio      = Number.parseFloat(campoPrecio.value);
+      const fotoBase64  = campoFotoOculto.value;
+
+      if (!nombre || !ingredientes) {
+        alert('Escribe el nombre y los ingredientes del platillo.');
+        return;
+      }
+      if (!Number.isFinite(precio) || precio < 0) {
+        alert('El precio debe ser un numero mayor o igual a cero.');
+        return;
+      }
+
+      if (botonAgregar) botonAgregar.disabled = true;
+
+      guardarPlatillo(nombre, ingredientes, precio, fotoBase64);
     });
-}
+  }
 
-if (formularioAgregar && campoNombre && campoIngredientes && campoPrecio && campoFotoOculto) {
-  formularioAgregar.addEventListener('submit', function (e) {
-    e.preventDefault();
-
-    const nombre = campoNombre.value.trim();
-    const ingredientes = campoIngredientes.value.trim();
-    const precio = Number.parseFloat(campoPrecio.value);
-    const fotoBase64 = campoFotoOculto.value;
-
-    if (!nombre || !ingredientes) {
-      alert('Escribe el nombre y los ingredientes del platillo.');
-      return;
-    }
-    if (!Number.isFinite(precio) || precio < 0) {
-      alert('El precio debe ser un numero mayor o igual a cero.');
-      return;
-    }
-
-    if (botonAgregar) botonAgregar.disabled = true;
-
-    guardarPlatillo(nombre, ingredientes, precio, fotoBase64);
-  });
-}
   /* ---------------------------------------------------------------- */
   /* Baja de platillos                                                  */
   /* ---------------------------------------------------------------- */
@@ -113,4 +116,5 @@ if (formularioAgregar && campoNombre && campoIngredientes && campoPrecio && camp
         });
     });
   }
+
 }
