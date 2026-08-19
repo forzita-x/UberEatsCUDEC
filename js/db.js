@@ -19,12 +19,10 @@ if (!db) {
       });
     },
     function (error) {
-      // Antes este error era silencioso: si las reglas de Firestore bloqueaban
-      // la lectura, la lista simplemente se quedaba vacia sin explicacion.
       console.error('Error al escuchar los platillos:', error);
       mostrarAviso(
         error.code === 'permission-denied'
-          ? 'No se pudieron cargar los platillos: las reglas de seguridad de Firestore estan bloqueando la lectura. Revisa firestore.rules.'
+          ? 'No se pudieron cargar los platillos: revisa firestore.rules.'
           : 'No se pudieron cargar los platillos: ' + error.message
       );
     }
@@ -48,6 +46,7 @@ if (!db) {
       const nombre = campoNombre.value.trim();
       const ingredientes = campoIngredientes.value.trim();
       const precio = Number.parseFloat(campoPrecio.value);
+      const fotoBase64 = campoFotoOculto.value;
 
       if (!nombre || !ingredientes) {
         alert('Escribe el nombre y los ingredientes del platillo.');
@@ -58,32 +57,54 @@ if (!db) {
         return;
       }
 
-      const platilloNuevo = {
-        nombre: nombre,
-        ingredientes: ingredientes,
-        precio: precio, // se guarda como numero, no como texto
-        foto: campoFotoOculto.value || '',
-        creado: firebase.firestore.FieldValue.serverTimestamp()
-      };
-
       if (botonAgregar) botonAgregar.disabled = true;
 
-      coleccionPlatillos.add(platilloNuevo)
-        .then(function () {
-          // El aviso y la limpieza van DENTRO del then: antes se ejecutaban
-          // antes de saber si Firestore habia aceptado el documento.
-          formularioAgregar.reset();
-          window.limpiarFoto();
-          M.updateTextFields();
-          alert('Platillo agregado');
-        })
-        .catch(function (error) {
-          console.error('Error al agregar el platillo:', error);
-          alert('Error al agregar el platillo: ' + error.message);
-        })
-        .finally(function () {
-          if (botonAgregar) botonAgregar.disabled = false;
-        });
+      function guardarPlatillo(urlFoto) {
+        const platilloNuevo = {
+          nombre: nombre,
+          ingredientes: ingredientes,
+          precio: precio,
+          foto: urlFoto,
+          creado: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        coleccionPlatillos.add(platilloNuevo)
+          .then(function () {
+            formularioAgregar.reset();
+            window.limpiarFoto();
+            M.updateTextFields();
+            alert('Platillo agregado');
+          })
+          .catch(function (error) {
+            console.error('Error al agregar el platillo:', error);
+            alert('Error al agregar el platillo: ' + error.message);
+          })
+          .finally(function () {
+            if (botonAgregar) botonAgregar.disabled = false;
+          });
+      }
+
+      // Si hay foto, subirla a Storage primero
+      if (fotoBase64) {
+        const storage = firebase.storage();
+        const archivoRef = storage.ref('platillos/' + Date.now() + '.jpg');
+
+        archivoRef.putString(fotoBase64, 'data_url')
+          .then(function (snapshot) {
+            return snapshot.ref.getDownloadURL();
+          })
+          .then(function (url) {
+            guardarPlatillo(url);
+          })
+          .catch(function (error) {
+            console.error('Error al subir la foto:', error);
+            alert('No se pudo subir la foto: ' + error.message);
+            if (botonAgregar) botonAgregar.disabled = false;
+          });
+      } else {
+        // Sin foto, guardar directo con cadena vacia
+        guardarPlatillo('');
+      }
     });
   }
 
@@ -106,7 +127,7 @@ if (!db) {
 
       coleccionPlatillos.doc(id).delete()
         .then(function () {
-          console.log('Platillo eliminado correctamente de la base de datos.');
+          console.log('Platillo eliminado correctamente.');
         })
         .catch(function (error) {
           console.error('Error al eliminar:', error);

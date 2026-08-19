@@ -19,7 +19,6 @@ function buscarTarjeta(id) {
   return listado ? listado.querySelector('.recipe[data-id="' + id + '"]') : null;
 }
 
-// Se construye con la API del DOM (no con innerHTML) para evitar inyeccion de HTML.
 function crearTarjeta(platillo, id) {
   const tarjeta = document.createElement('div');
   tarjeta.className = 'card-panel recipe white row';
@@ -67,7 +66,7 @@ function crearTarjeta(platillo, id) {
 }
 
 function mostrarPlatillo(platillo, id) {
-  if (!listado || buscarTarjeta(id)) return; // evita duplicados
+  if (!listado || buscarTarjeta(id)) return;
   listado.appendChild(crearTarjeta(platillo, id));
 }
 
@@ -86,7 +85,6 @@ function borrarPlatillo(id) {
   if (tarjeta) tarjeta.remove();
 }
 
-// Aviso visible dentro de la lista, en lugar de un alert en cada carga.
 function mostrarAviso(texto) {
   if (!listado) return;
   let aviso = listado.querySelector('.aviso');
@@ -110,7 +108,6 @@ const btnFoto = document.getElementById('btnFoto');
 const btnCapturar = document.getElementById('btnCapturar');
 const campoFoto = document.getElementById('fotoFinal');
 
-// Si alguno falta es que no estamos en index.html: no se engancha nada.
 if (video && canvas && salida && foto && btnFoto && btnCapturar && campoFoto) {
   const ANCHO = 320;
   let alto = 0;
@@ -138,7 +135,6 @@ if (video && canvas && salida && foto && btnFoto && btnCapturar && campoFoto) {
       return;
     }
 
-    // getUserMedia solo existe en contexto seguro (https o localhost).
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       alert('La camara no esta disponible. Abre la app por https o desde localhost.');
       return;
@@ -180,7 +176,6 @@ if (video && canvas && salida && foto && btnFoto && btnCapturar && campoFoto) {
     canvas.height = alto;
     canvas.getContext('2d').drawImage(video, 0, 0, ANCHO, alto);
 
-    // JPEG al 70%: ~20 KB, muy por debajo del limite de 1 MiB de Firestore.
     const fotoFinal = canvas.toDataURL('image/jpeg', 0.7);
     foto.src = fotoFinal;
     campoFoto.value = fotoFinal;
@@ -191,7 +186,6 @@ if (video && canvas && salida && foto && btnFoto && btnCapturar && campoFoto) {
   btnCapturar.disabled = true;
   salida.style.display = 'none';
 
-  // Permite que db.js limpie la vista previa despues de guardar.
   window.limpiarFoto = function () {
     campoFoto.value = '';
     foto.removeAttribute('src');
