@@ -1,8 +1,8 @@
-# VentaPatito
+# FOrzaStreetOD
 
 ## 1. Título del proyecto
 
-**Nombre de la aplicación:** VentaPatito
+**Nombre de la aplicación:** FOrzaStreetOD
 **Nombre del proyecto:** `VP_POS`
 **Tipo de aplicación:** PWA (Progressive Web App)
 
@@ -12,13 +12,13 @@
 
 | Dato | Valor |
 |---|---|
-| **Alumno** | García Marcelo Mauricio |
+| **Alumno** | Leonel Gonzalez Arce |
 | **Materia** | Taller de Programación Avanzada II |
 | **Carrera** | Ingeniería en Sistemas Computacionales |
 | **Grupo** | ISC182 |
 | **Institución** | Universidad Multicultural CUDEC |
-| **Repositorio** | https://github.com/spmarcelo1409/UberEatsCUDEC |
-| **Sitio publicado** | https://spmarcelo1409.github.io/UberEatsCUDEC/ | 
+| **Repositorio** | https://github.com/forzita-x/UberEatsFOrzaStreetOD.git |
+| **Sitio publicado** |  https://forzita-x.github.io/UberEatsFOrzaStreetOD/ | 
 
 > **¿Por qué esta sección?** Es la ficha de identificación del trabajo. Un lector
 > (el docente, un compañero o un reclutador) debe saber en los primeros diez
