@@ -246,26 +246,29 @@ if (video && canvas && salida && foto && btnFoto && btnCapturar && campoFoto) {
 
   // --- Botón Capturar ---
   btnCapturar.addEventListener('click', function () {
-    if (!streamActual) {
-      alert('Primero enciende la camara con el boton "Imagen".');
-      return;
-    }
+  if (!streamActual) {
+    alert('Primero enciende la camara con el boton "Imagen".');
+    return;
+  }
 
-    const w = video.videoWidth  || ANCHO;
-    const h = video.videoHeight || Math.round(ANCHO * 4 / 3);
+  // Limitar a máximo 640px de ancho para que el Base64 sea liviano
+  const MAX = 640;
+  const escala = Math.min(1, MAX / video.videoWidth);
+  const w = Math.round(video.videoWidth  * escala);
+  const h = Math.round(video.videoHeight * escala);
 
-    canvas.width  = w;
-    canvas.height = h;
-    canvas.getContext('2d').drawImage(video, 0, 0, w, h);
+  canvas.width  = w;
+  canvas.height = h;
+  canvas.getContext('2d').drawImage(video, 0, 0, w, h);
 
-    const fotoFinal = canvas.toDataURL('image/jpeg', 0.7);
-    foto.src        = fotoFinal;
-    campoFoto.value = fotoFinal;
+  // JPEG al 60% sobre un canvas de 640px = aprox 50-80 KB
+  const fotoFinal = canvas.toDataURL('image/jpeg', 0.6);
+  foto.src        = fotoFinal;
+  campoFoto.value = fotoFinal;
 
-    // Detener stream y mostrar la foto capturada en lugar del video
-    detenerCamara();
-    mostrarFoto();
-  });
+  detenerCamara();
+  mostrarFoto();
+});
 
   btnCapturar.disabled = true;
   ocultarTodo();
