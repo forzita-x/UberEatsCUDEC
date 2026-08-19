@@ -58,54 +58,33 @@ if (!db) {
 
       if (botonAgregar) botonAgregar.disabled = true;
 
-      function guardarPlatillo(urlFoto) {
-        const platilloNuevo = {
-          nombre: nombre,
-          ingredientes: ingredientes,
-          precio: precio,
-          foto: urlFoto,
-          creado: firebase.firestore.FieldValue.serverTimestamp()
-        };
+function guardarPlatillo(fotoBase64) {
+  const platilloNuevo = {
+    nombre: nombre,
+    ingredientes: ingredientes,
+    precio: precio,
+    foto: fotoBase64,
+    creado: firebase.firestore.FieldValue.serverTimestamp()
+  };
 
-        coleccionPlatillos.add(platilloNuevo)
-          .then(function () {
-            formularioAgregar.reset();
-            window.limpiarFoto();
-            M.updateTextFields();
-            alert('Platillo agregado');
-          })
-          .catch(function (error) {
-            console.error('Error al agregar el platillo:', error);
-            alert('Error al agregar el platillo: ' + error.message);
-          })
-          .finally(function () {
-            if (botonAgregar) botonAgregar.disabled = false;
-          });
-      }
+  coleccionPlatillos.add(platilloNuevo)
+    .then(function () {
+      formularioAgregar.reset();
+      window.limpiarFoto();
+      M.updateTextFields();
+      alert('Platillo agregado');
+    })
+    .catch(function (error) {
+      console.error('Error al agregar el platillo:', error);
+      alert('Error al agregar el platillo: ' + error.message);
+    })
+    .finally(function () {
+      if (botonAgregar) botonAgregar.disabled = false;
+    });
+}
 
-      // Si hay foto, subirla a Storage primero
-      if (fotoBase64) {
-        const storage = firebase.storage();
-        const archivoRef = storage.ref('platillos/' + Date.now() + '.jpg');
-
-        alert('Intentando subir foto a Storage...');
-archivoRef.putString(fotoBase64, 'data_url')
-  .then(function (snapshot) {
-    alert('Foto subida, obteniendo URL...');
-    return snapshot.ref.getDownloadURL();
-  })
-  .then(function (url) {
-    alert('URL obtenida: ' + url.substring(0, 60));
-    guardarPlatillo(url);
-  })
-  .catch(function (error) {
-    alert('ERROR STORAGE: ' + error.code + ' - ' + error.message);
-    if (botonAgregar) botonAgregar.disabled = false;
-  });
-      } else {
-        // Sin foto, guardar directo con cadena vacia
-        guardarPlatillo('');
-      }
+// Llamar directo sin pasar por Storage
+guardarPlatillo(fotoBase64);
     });
   }
 

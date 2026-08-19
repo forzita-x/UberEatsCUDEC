@@ -245,14 +245,13 @@ if (video && canvas && salida && foto && btnFoto && btnCapturar && campoFoto) {
   });
 
   // --- Botón Capturar ---
-  btnCapturar.addEventListener('click', function () {
+btnCapturar.addEventListener('click', function () {
   if (!streamActual) {
     alert('Primero enciende la camara con el boton "Imagen".');
     return;
   }
 
-  // Limitar a máximo 640px de ancho para que el Base64 sea liviano
-  const MAX = 640;
+  const MAX = 400;
   const escala = Math.min(1, MAX / video.videoWidth);
   const w = Math.round(video.videoWidth  * escala);
   const h = Math.round(video.videoHeight * escala);
@@ -261,8 +260,7 @@ if (video && canvas && salida && foto && btnFoto && btnCapturar && campoFoto) {
   canvas.height = h;
   canvas.getContext('2d').drawImage(video, 0, 0, w, h);
 
-  // JPEG al 60% sobre un canvas de 640px = aprox 50-80 KB
-  const fotoFinal = canvas.toDataURL('image/jpeg', 0.6);
+  const fotoFinal = canvas.toDataURL('image/jpeg', 0.5);
   foto.src        = fotoFinal;
   campoFoto.value = fotoFinal;
 
