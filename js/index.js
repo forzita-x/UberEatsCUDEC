@@ -100,51 +100,70 @@ function mostrarAviso(texto) {
 /* Camara                                                               */
 /* ------------------------------------------------------------------ */
 
-/* ------------------------------------------------------------------ */
-/* Camara                                                               */
-/* ------------------------------------------------------------------ */
-
-const video = document.getElementById('video');
-const canvas = document.getElementById('canvas');
-const salida = document.getElementById('salida');
-const foto = document.getElementById('foto');
-const btnFoto = document.getElementById('btnFoto');
+const video    = document.getElementById('video');
+const canvas   = document.getElementById('canvas');
+const salida   = document.getElementById('salida');
+const foto     = document.getElementById('foto');
+const btnFoto  = document.getElementById('btnFoto');
 const btnCapturar = document.getElementById('btnCapturar');
-const campoFoto = document.getElementById('fotoFinal');
+const campoFoto   = document.getElementById('fotoFinal');
 
 if (video && canvas && salida && foto && btnFoto && btnCapturar && campoFoto) {
   const ANCHO = 320;
-  let alto = 0;
-  let streaming = false;
   let streamActual = null;
 
-  // Crear selector de cámara dinámicamente
-  const selectCamara = document.createElement('select');
-  selectCamara.className = 'browser-default';
-  selectCamara.style.cssText = 'margin: 8px 0; width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 5px; display: none;';
-  btnCapturar.parentNode.insertBefore(selectCamara, btnCapturar.nextSibling);
-
   video.setAttribute('playsinline', '');
+  video.setAttribute('autoplay', '');
   video.muted = true;
 
+  // --- Selector de cámara (se inserta dinámicamente) ---
+  const selectCamara = document.createElement('select');
+  selectCamara.className = 'browser-default';
+  selectCamara.style.cssText = [
+    'margin: 8px 0',
+    'width: 100%',
+    'border: 1px solid #ccc',
+    'border-radius: 4px',
+    'padding: 5px',
+    'display: none'
+  ].join(';');
+  btnCapturar.parentNode.insertBefore(selectCamara, btnCapturar.nextSibling);
+
+  // --- Estado visual ---
+  function mostrarVideo() {
+    video.style.display  = 'block';
+    salida.style.display = 'none';
+  }
+
+  function mostrarFoto() {
+    video.style.display  = 'none';
+    salida.style.display = 'block';
+  }
+
+  function ocultarTodo() {
+    video.style.display  = 'none';
+    salida.style.display = 'none';
+  }
+
+  // --- Detener stream ---
   function detenerCamara() {
     if (streamActual) {
-      streamActual.getTracks().forEach(function (track) { track.stop(); });
+      streamActual.getTracks().forEach(function (t) { t.stop(); });
       streamActual = null;
     }
     video.srcObject = null;
-    streaming = false;
-    alto = 0;
-    btnCapturar.disabled = true;
-    btnFoto.textContent = 'Imagen';
+    btnCapturar.disabled    = true;
+    btnFoto.textContent     = 'Imagen';
     selectCamara.style.display = 'none';
+    ocultarTodo();
   }
 
-  function iniciarCamara(deviceId) {
+  // --- Iniciar stream con deviceId concreto (o trasera por defecto) ---
+  function iniciarStream(deviceId) {
     if (streamActual) {
-      streamActual.getTracks().forEach(function (track) { track.stop(); });
+      streamActual.getTracks().forEach(function (t) { t.stop(); });
       streamActual = null;
-      streaming = false;
+      video.srcObject = null;
     }
 
     const restricciones = {
@@ -156,13 +175,17 @@ if (video && canvas && salida && foto && btnFoto && btnCapturar && campoFoto) {
 
     return navigator.mediaDevices.getUserMedia(restricciones)
       .then(function (stream) {
-        streamActual = stream;
+        streamActual    = stream;
         video.srcObject = stream;
-        btnFoto.textContent = 'Apagar camara';
-        return video.play();
+        mostrarVideo();
+        btnFoto.textContent  = 'Apagar camara';
+        btnCapturar.disabled = false;
+        // play() puede rechazarse si el elemento aún no está visible; se ignora
+        return video.play().catch(function () {});
       });
   }
 
+  // --- Rellenar selector con las cámaras disponibles ---
   function cargarCamaras() {
     return navigator.mediaDevices.enumerateDevices()
       .then(function (dispositivos) {
@@ -171,19 +194,27 @@ if (video && canvas && salida && foto && btnFoto && btnCapturar && campoFoto) {
         });
 
         selectCamara.innerHTML = '';
-
-        camaras.forEach(function (camara, indice) {
-          const opcion = document.createElement('option');
-          opcion.value = camara.deviceId;
-          opcion.textContent = camara.label || ('Camara ' + (indice + 1));
-          selectCamara.appendChild(opcion);
+        camaras.forEach(function (cam, i) {
+          const op = document.createElement('option');
+          op.value       = cam.deviceId;
+          op.textContent = cam.label || ('Camara ' + (i + 1));
+          selectCamara.appendChild(op);
         });
 
-        // Solo mostrar el selector si hay mas de una camara
         selectCamara.style.display = camaras.length > 1 ? 'block' : 'none';
+
+        // Marcar en el select la cámara que realmente está activa
+        if (streamActual) {
+          const track = streamActual.getVideoTracks()[0];
+          if (track) {
+            const id = track.getSettings().deviceId;
+            if (id) selectCamara.value = id;
+          }
+        }
       });
   }
 
+  // --- Botón Imagen ---
   btnFoto.addEventListener('click', function () {
     if (streamActual) {
       detenerCamara();
@@ -195,19 +226,8 @@ if (video && canvas && salida && foto && btnFoto && btnCapturar && campoFoto) {
       return;
     }
 
-    // Iniciar con la camara trasera por defecto, luego cargar la lista
-    iniciarCamara(null)
-      .then(function () {
-        return cargarCamaras();
-      })
-      .then(function () {
-        // Sincronizar el select con la camara que realmente se esta usando
-        const trackActual = streamActual && streamActual.getVideoTracks()[0];
-        if (trackActual) {
-          const deviceIdActual = trackActual.getSettings().deviceId;
-          if (deviceIdActual) selectCamara.value = deviceIdActual;
-        }
-      })
+    iniciarStream(null)
+      .then(cargarCamaras)
       .catch(function (error) {
         console.error('No se pudo abrir la camara:', error);
         alert('No se pudo abrir la camara: ' + error.message);
@@ -215,50 +235,44 @@ if (video && canvas && salida && foto && btnFoto && btnCapturar && campoFoto) {
       });
   });
 
+  // --- Cambio de cámara en el selector ---
   selectCamara.addEventListener('change', function () {
-    iniciarCamara(selectCamara.value)
+    iniciarStream(selectCamara.value)
       .catch(function (error) {
         console.error('No se pudo cambiar la camara:', error);
         alert('No se pudo cambiar la camara: ' + error.message);
       });
   });
 
-  video.addEventListener('canplay', function () {
-    if (streaming || !video.videoWidth) return;
-
-    alto = video.videoHeight / (video.videoWidth / ANCHO);
-    video.setAttribute('width', ANCHO);
-    video.setAttribute('height', alto);
-    canvas.setAttribute('width', ANCHO);
-    canvas.setAttribute('height', alto);
-    streaming = true;
-    btnCapturar.disabled = false;
-  });
-
+  // --- Botón Capturar ---
   btnCapturar.addEventListener('click', function () {
-    if (!streaming || !alto) {
+    if (!streamActual) {
       alert('Primero enciende la camara con el boton "Imagen".');
       return;
     }
 
-    canvas.width = ANCHO;
-    canvas.height = alto;
-    canvas.getContext('2d').drawImage(video, 0, 0, ANCHO, alto);
+    const w = video.videoWidth  || ANCHO;
+    const h = video.videoHeight || Math.round(ANCHO * 4 / 3);
+
+    canvas.width  = w;
+    canvas.height = h;
+    canvas.getContext('2d').drawImage(video, 0, 0, w, h);
 
     const fotoFinal = canvas.toDataURL('image/jpeg', 0.7);
-    foto.src = fotoFinal;
+    foto.src        = fotoFinal;
     campoFoto.value = fotoFinal;
-    salida.style.display = 'block';
+
+    // Detener stream y mostrar la foto capturada en lugar del video
     detenerCamara();
+    mostrarFoto();
   });
 
   btnCapturar.disabled = true;
-  salida.style.display = 'none';
+  ocultarTodo();
 
   window.limpiarFoto = function () {
     campoFoto.value = '';
     foto.removeAttribute('src');
-    salida.style.display = 'none';
     detenerCamara();
   };
 } else {

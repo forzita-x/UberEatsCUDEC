@@ -70,13 +70,18 @@ nav .sidenav-trigger{
 
 /* camara */
 #camara video{
-  display: block;
+  display: none;         /* el JS lo muestra cuando hay stream */
+  width: 100%;
   max-width: 100%;
+  height: auto;
   border-radius: 8px;
   background: #000;
+  object-fit: cover;    /* evita el negro por relacion de aspecto incorrecta */
 }
-/* El canvas solo se usa para capturar el frame, nunca se muestra. */
 #canvas{
+  display: none;
+}
+#salida{
   display: none;
 }
 #salida img{
@@ -85,7 +90,6 @@ nav .sidenav-trigger{
   margin-top: 10px;
   border-radius: 8px;
 }
-
 /* form-styles */
 .add-btn{
   background: var(--title) !important;
