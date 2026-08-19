@@ -1,6 +1,6 @@
 // Service Worker de ForzaStreetOD.
 // Sube el numero de CACHE cuando cambies archivos para forzar la actualizacion.
-const CACHE = 'forzastreetod-v2';
+const CACHE = 'forzastreetod-v3';
 
 const RECURSOS = [
   './',
