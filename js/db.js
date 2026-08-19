@@ -1,11 +1,6 @@
 // Sincronizacion de la coleccion "platillos" con Firestore.
 // Requiere firebase.js (define `db`) e index.js (define mostrarPlatillo, etc.).
 // Solo se carga en index.html.
-alert('db.js cargado - db vale: ' + (typeof db));
-window.addEventListener('unhandledrejection', function(event) {
-  alert('ERROR PROMISE: ' + event.reason);
-});
-
 if (!db) {
   console.error('Firestore no esta disponible: no se cargaran los platillos.');
 } else {
@@ -93,18 +88,20 @@ if (!db) {
         const storage = firebase.storage();
         const archivoRef = storage.ref('platillos/' + Date.now() + '.jpg');
 
-        archivoRef.putString(fotoBase64, 'data_url')
-          .then(function (snapshot) {
-            return snapshot.ref.getDownloadURL();
-          })
-          .then(function (url) {
-            guardarPlatillo(url);
-          })
-          .catch(function (error) {
-            console.error('Error al subir la foto:', error);
-            alert('No se pudo subir la foto: ' + error.message);
-            if (botonAgregar) botonAgregar.disabled = false;
-          });
+        alert('Intentando subir foto a Storage...');
+archivoRef.putString(fotoBase64, 'data_url')
+  .then(function (snapshot) {
+    alert('Foto subida, obteniendo URL...');
+    return snapshot.ref.getDownloadURL();
+  })
+  .then(function (url) {
+    alert('URL obtenida: ' + url.substring(0, 60));
+    guardarPlatillo(url);
+  })
+  .catch(function (error) {
+    alert('ERROR STORAGE: ' + error.code + ' - ' + error.message);
+    if (botonAgregar) botonAgregar.disabled = false;
+  });
       } else {
         // Sin foto, guardar directo con cadena vacia
         guardarPlatillo('');
